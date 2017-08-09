@@ -1,0 +1,6 @@
+MNIST_data/
+*~
+*.pyc
+*.ipynb*
+*__*
+*.tar*
