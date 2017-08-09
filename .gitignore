@@ -4,3 +4,4 @@ MNIST_data/
 *.ipynb*
 *__*
 *.tar*
+*.swp

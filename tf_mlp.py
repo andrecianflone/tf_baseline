@@ -6,6 +6,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.contrib.layers import xavier_initializer as glorot
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 from data import disp_img
+from pprint import pprint
 
 size_train = mnist.train.num_examples # should be 55k
 size_val = mnist.validation.num_examples # should be 5k
@@ -17,9 +18,12 @@ keep_prob = 0.8
 batch_size = 100
 batch_val_size = 100
 nb_epoch = 30
+units = 1024 # num units in hidden layers
+num_h_layers = 11 # how many hidden layers
 
-
+parameter_stats = {}
 data_type = tf.float32
+
 def dense(x, in_dim, out_dim, scope, act=None, drop=1):
   """
   Fully connected layer builder
@@ -30,6 +34,7 @@ def dense(x, in_dim, out_dim, scope, act=None, drop=1):
     act     - activation function, default no activation (i.e. linear)
     drop    - the dropout keep rate, default is 1 (no dropout)
   """
+  parameter_stats[scope] = in_dim * out_dim + out_dim
   with tf.variable_scope(scope):
     weights = tf.get_variable("weights", shape=[in_dim, out_dim],
               dtype=data_type, initializer=glorot())
@@ -52,11 +57,14 @@ assert size_val % batch_val_size == 0
 x = tf.placeholder(tf.float32, [None, 784])
 y_target = tf.placeholder(tf.float32, [None, 10])
 
-# Hidden layers
-units = 3000
-h_1 = dense(x, input_dim, units, "W_1", act=tf.nn.relu, drop=keep_prob)
-h_2 = dense(h_1, units, units, "W_2", act=tf.nn.relu, drop=keep_prob)
-y = dense(h_2, units, num_classes, "out")
+# Hidden layers build
+h = x
+in_units = input_dim
+for i in range(1, num_h_layers + 1):
+  name = "W_{}".format(i)
+  h = dense(h, in_units, units, name, act=tf.nn.relu, drop=keep_prob)
+  in_units = units
+y = dense(h, units, num_classes, "out")
 
 # Configure optimization
 loss_op = tf.reduce_mean(
@@ -84,6 +92,17 @@ def eval_validation(sess):
   acc = np.mean(acc_ls)
   print(' || val loss: {:.4f} | accuracy: {:.4f}'.format(
         loss, acc) )
+
+# Param info
+total = 0
+for _, v in parameter_stats.items():
+  total += v
+
+print('*'*79)
+print("Number of Parameters:")
+pprint(parameter_stats)
+print("Total number of parameters: ", total)
+print('*'*79)
 
 # Context manager for convenience
 # Uses default graph
