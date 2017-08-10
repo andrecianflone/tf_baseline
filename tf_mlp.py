@@ -17,9 +17,9 @@ drop_rate = 0.2
 keep_prob = 0.8
 batch_size = 100
 batch_val_size = 100
-nb_epoch = 30
-units = 1024 # num units in hidden layers
-num_h_layers = 11 # how many hidden layers
+nb_epoch = 50
+units = 500 # num units in hidden layers
+num_h_layers = 50 # how many hidden layers
 
 parameter_stats = {}
 data_type = tf.float32
